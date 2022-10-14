@@ -1,0 +1,41 @@
+version: '3.9'
+services:
+  db:
+    image: mysql:8.0.29
+    command: mysqld --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      TZ: America/Sao_Paulo
+      MYSQL_ROOT_PASSWORD: 930525
+      MYSQL_USER: docker
+      MYSQL_PASSWORD: 930525
+      MYSQL_DATABASE: apirest
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_TCP_PORT: 3308
+    ports:
+      - 3308:3308
+    expose:
+      - 3308
+    networks:
+      - wilson-network
+  api-rest-spring:
+    image: wilsonpaiva/api-rest-spring
+    restart: always
+    build: ./api-rest-spring
+    working_dir: /api-rest-spring
+    environment:
+      TZ: America/Sao_Paulo
+      SPRING.DATASOURCE.URL: jdbc:mysql://db:3308/apirest?useTimezone=true&serverTimezone=UTC
+      SPRING.DATASOURCE.USERNAME: root
+      SPRING.DATASOURCE.PASSWORD: 930525
+    ports:
+      - 80:80
+    command: mvn spring-boot:run
+    depends_on:
+      - db
+    networks:
+      - wilson-network
+networks:
+  wilson-network:
+    driver: bridge
+
